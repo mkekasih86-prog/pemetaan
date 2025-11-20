@@ -36,7 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   supabase_flutter: ^2.10.3
   google_maps_flutter: ^2.5.3
+  google_maps_flutter_web: ^0.5.4+2
   crypto: ^3.0.3
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:

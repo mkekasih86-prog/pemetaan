@@ -36,7 +36,9 @@ class _VillageMapsScreenState extends State<VillageMapsScreen> {
       for (var resident in data) {
         final marker = Marker(
           point: LatLng(resident['latitude'], resident['longitude']),
-          builder: (ctx) => GestureDetector(
+          width: 40.0,
+          height: 40.0,
+          child: GestureDetector(
             onTap: () {
               showDialog(
                 context: context,
@@ -117,8 +119,8 @@ class _VillageMapsScreenState extends State<VillageMapsScreen> {
         child: FlutterMap(
           mapController: mapController,
           options: MapOptions(
-            center: _center,
-            zoom: 15.0,
+            initialCenter: _center,
+            initialZoom: 15.0,
             onMapReady: () => _onMapCreated(mapController),
           ),
           children: [
