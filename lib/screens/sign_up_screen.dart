@@ -12,7 +12,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -21,7 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -30,12 +30,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void _signUp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final email = _emailController.text.trim();
+        final username = _usernameController.text.trim();
         final password = _passwordController.text;
         final passwordHash = sha256.convert(utf8.encode(password)).toString();
 
         await Supabase.instance.client.from('users').insert({
-          'email': email,
+          'username': username,
           'password_hash': passwordHash,
         });
 
@@ -44,9 +44,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
         Navigator.pushReplacementNamed(context, '/login');
       } catch (e) {
-        String errorMessage = 'An error occurred';
+        String errorMessage =
+            'Terjadi kesalahan saat membuat akun: ${e.toString()}';
         if (e.toString().contains('duplicate key value')) {
-          errorMessage = 'Email already exists';
+          errorMessage = 'Username sudah digunakan';
         }
         ScaffoldMessenger.of(
           context,
@@ -88,7 +89,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        'Create Account',
+                        'Membuat Akun Baru',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -97,28 +98,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        'Sign up to get started',
+                        'Daftar untuk melanjutkan',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                       const SizedBox(height: 30),
                       TextFormField(
-                        controller: _emailController,
+                        controller: _usernameController,
                         decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email),
+                          labelText: 'Username',
+                          prefixIcon: const Icon(Icons.person),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           filled: true,
                           fillColor: Colors.grey[100],
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return 'Silahkan masukkan username';
                           }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
+                          if (!RegExp(r'^[a-z]+$').hasMatch(value)) {
+                            return 'Username hanya boleh huruf kecil';
                           }
                           return null;
                         },
@@ -162,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       TextFormField(
                         controller: _confirmPasswordController,
                         decoration: InputDecoration(
-                          labelText: 'Confirm Password',
+                          labelText: 'Ulangi Password',
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -210,7 +211,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           elevation: 5,
                         ),
                         child: const Text(
-                          'Sign Up',
+                          'Daftar',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -223,7 +224,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Navigator.pushReplacementNamed(context, '/login');
                         },
                         child: const Text(
-                          'Already have an account? Login',
+                          'Sudah punya akun? Masuk di sini',
                           style: TextStyle(color: Colors.green),
                         ),
                       ),

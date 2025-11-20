@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VillageMapsScreen extends StatefulWidget {
   const VillageMapsScreen({super.key});
@@ -9,37 +11,66 @@ class VillageMapsScreen extends StatefulWidget {
 }
 
 class _VillageMapsScreenState extends State<VillageMapsScreen> {
-  late GoogleMapController mapController;
+  late MapController mapController;
 
   // Approximate coordinates for Randusari, Pasuruan, East Java
-  static const LatLng _center = LatLng(-7.6469, 112.7183);
+  static final LatLng _center = LatLng(-7.6469, 112.7183);
 
-  // Placeholder markers for residents (can be replaced with real data from Supabase)
-  final Set<Marker> _markers = {
-    const Marker(
-      markerId: MarkerId('resident1'),
-      position: LatLng(-7.6469, 112.7183),
-      infoWindow: InfoWindow(
-        title: 'Resident 1',
-        snippet: 'Sample resident location',
-      ),
-    ),
-    const Marker(
-      markerId: MarkerId('resident2'),
-      position: LatLng(-7.6475, 112.7190),
-      infoWindow: InfoWindow(
-        title: 'Resident 2',
-        snippet: 'Another sample location',
-      ),
-    ),
-  };
+  List<Marker> _markers = [];
 
   @override
   void initState() {
     super.initState();
+    _fetchResidents();
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  Future<void> _fetchResidents() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('residents')
+          .select('id, name, latitude, longitude, address');
+
+      final List<dynamic> data = response as List<dynamic>;
+
+      List<Marker> markers = [];
+      for (var resident in data) {
+        final marker = Marker(
+          point: LatLng(resident['latitude'], resident['longitude']),
+          builder: (ctx) => GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(resident['name']),
+                  content: Text('ID: ${resident['id']}'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+          ),
+        );
+        markers.add(marker);
+      }
+
+      setState(() {
+        _markers = markers;
+      });
+    } catch (e) {
+      // Handle error, perhaps show a snackbar
+      setState(() {});
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error fetching residents: $e')));
+    }
+  }
+
+  void _onMapCreated(MapController controller) {
     mapController = controller;
   }
 
@@ -83,26 +114,25 @@ class _VillageMapsScreenState extends State<VillageMapsScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: const CameraPosition(
-            target: _center,
+        child: FlutterMap(
+          mapController: mapController,
+          options: MapOptions(
+            center: _center,
             zoom: 15.0,
+            onMapReady: () => _onMapCreated(mapController),
           ),
-          markers: _markers,
-          mapType: MapType.normal,
-          myLocationEnabled: true,
-          myLocationButtonEnabled: true,
-          zoomControlsEnabled: true,
-          zoomGesturesEnabled: true,
-          scrollGesturesEnabled: true,
-          tiltGesturesEnabled: true,
-          rotateGesturesEnabled: true,
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.app',
+            ),
+            MarkerLayer(markers: _markers),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          mapController.animateCamera(CameraUpdate.newLatLng(_center));
+          mapController.move(_center, 15.0);
         },
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.center_focus_strong),

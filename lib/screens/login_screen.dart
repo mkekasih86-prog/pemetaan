@@ -12,13 +12,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -26,23 +26,23 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final email = _emailController.text.trim();
+        final username = _usernameController.text.trim();
         final password = _passwordController.text;
         final passwordHash = sha256.convert(utf8.encode(password)).toString();
 
         final response = await Supabase.instance.client
             .from('users')
-            .select('email')
-            .eq('email', email)
+            .select('username')
+            .eq('username', username)
             .eq('password_hash', passwordHash)
             .single();
 
         if (response != null) {
-          Navigator.pushReplacementNamed(context, '/home', arguments: email);
+          Navigator.pushReplacementNamed(context, '/home', arguments: username);
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid email or password')),
+          const SnackBar(content: Text('Username dan password tidak sesuai')),
         );
       }
     }
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        'Welcome Pemetaan Kelurahan Randusari',
+                        'Welcome Pemetaan Penduduk Randusari',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -90,28 +90,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        'Sign in to continue',
+                        'Masuk untuk melanjutkan',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                       const SizedBox(height: 30),
                       TextFormField(
-                        controller: _emailController,
+                        controller: _usernameController,
                         decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email),
+                          labelText: 'Username',
+                          prefixIcon: const Icon(Icons.person),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           filled: true,
                           fillColor: Colors.grey[100],
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
+                            return 'Please enter your username';
                           }
                           return null;
                         },
@@ -167,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           elevation: 5,
                         ),
                         child: const Text(
-                          'Login',
+                          'Masuk',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -180,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.pushNamed(context, '/sign_up');
                         },
                         child: const Text(
-                          "Don't have an account? Sign Up",
+                          "Belum punya akun? Daftar di sini",
                           style: TextStyle(color: Colors.blueAccent),
                         ),
                       ),

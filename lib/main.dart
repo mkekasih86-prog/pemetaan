@@ -9,9 +9,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: "https://bvmcmyedzobwwpwhzbdx.supabase.co",
+    url: "https://elyaukmcmcogluuvrlyr.supabase.co",
     anonKey:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2bWNteWVkem9id3dwd2h6YmR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0Mzc1ODksImV4cCI6MjA3OTAxMzU4OX0.I4F7uN6DsttLGU6Gmex8EtYl4c55lU59Zb5pf2DBdws",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVseWF1a21jbWNvZ2x1dXZybHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MTg0MTUsImV4cCI6MjA3OTA5NDQxNX0.LdJPsMLckCdpOYZv4FnKyIfjEhKXhGxYD97NQqHx8TQ",
   );
 
   runApp(MyApp());
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pemetaan Kelurahan Randusari',
+      title: 'Pemetaan Penduduk Randusari',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
