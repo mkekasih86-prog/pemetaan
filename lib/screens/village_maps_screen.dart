@@ -21,6 +21,7 @@ class _VillageMapsScreenState extends State<VillageMapsScreen> {
   @override
   void initState() {
     super.initState();
+    mapController = MapController();
     _fetchResidents();
   }
 
@@ -28,7 +29,9 @@ class _VillageMapsScreenState extends State<VillageMapsScreen> {
     try {
       final response = await Supabase.instance.client
           .from('residents')
-          .select('id, name, latitude, longitude, address');
+          .select(
+            'id, nama_penduduk, rt, rw, nik, jenis_kelamin, latitude, longitude, address',
+          );
 
       final List<dynamic> data = response as List<dynamic>;
 
@@ -43,8 +46,19 @@ class _VillageMapsScreenState extends State<VillageMapsScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text(resident['name']),
-                  content: Text('ID: ${resident['id']}'),
+                  title: Text(resident['nama_penduduk']),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ID: ${resident['id']}'),
+                      Text('RT: ${resident['rt']}'),
+                      Text('RW: ${resident['rw']}'),
+                      Text('NIK: ${resident['nik']}'),
+                      Text('Jenis Kelamin: ${resident['jenis_kelamin']}'),
+                      Text('Alamat: ${resident['address']}'),
+                    ],
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
